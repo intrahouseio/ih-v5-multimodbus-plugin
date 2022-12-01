@@ -1,0 +1,417 @@
+{
+  "grid": [
+    {
+      "id": "pnode",
+      "xs": 4,
+      "class": "main",
+      "table": "devhard_with_parent_node",
+      "hide": "data.pnode.foldertype != 'node'"
+    },
+    { "id": "p1", "xs": 4, "class": "main", "table": "devhard" },
+    { "id": "prw", "xs": 4, "class": "main", "table": "devhard" },
+
+    { "id": "p2", "xs": 8, "class": "main", "table": "devhard" },
+    { "id": "p3", "xs": 4, "class": "main", "table": "devhard", "hide": "!data.prw.r" },
+
+    { "id": "p8", "xs": 8, "class": "main", "table": "devhard", "hide": "!data.prw.r" },
+    { "id": "p9", "xs": 4, "class": "main", "table": "onechannelrtTable", "hide": "!data.prw.r" },
+
+    { "id": "p4", "xs": 8, "class": "main", "table": "devhard", "hide": "!data.prw.w" },
+
+    { "id": "ptest", "xs": 4, "class": "main", "table": "devhard", "hide": "!data.prw.w" }
+  ],
+  "spacing": 4,
+
+  "pnode": [
+    { "prop": "foldertype", "title": "foldertype", "type": "text", "hide": "1==1" },
+    { "prop": "parentname", "title": "$parentname", "type": "text" },
+    { "prop": "nodeip", "title": "$nodeip", "type": "text" },
+    { "prop": "nodeport", "title": "$nodeport", "type": "text" },
+    { "prop": "nodetransport", "title": "$nodetransport", "type": "text" },
+    { "prop": "parentunitid", "title": "$unitid", "type": "text" },
+    { "prop": "parentoffset", "title": "$offset", "type": "text" }
+  ],
+
+  "p1": [
+    {
+      "prop": "unitid",
+      "title": "$unitid",
+      "type": "input",
+      "default": 1,
+      "hide": "data.pnode.foldertype == 'node'"
+    },
+    { "prop": "chan", "title": "$Channel", "type": "input" },
+    { "prop": "devpropname", "title": "$devpropname", "type": "input" }
+  ],
+
+  "prw": [
+    { "prop": "r", "title": "$Read", "type": "cb" },
+    { "prop": "w", "title": "$Write", "type": "cb" }
+  ],
+
+  "p2": [
+    {
+      "prop": "address",
+      "title": "$address",
+      "type": "input",
+      "default": "0x0000"
+    },
+
+    {
+      "prop": "vartype",
+      "title": "$vartype",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "bool",
+          "title": "BOOL"
+        },
+
+        {
+          "id": "int8",
+          "title": "INT8, 1 байт"
+        },
+
+        {
+          "id": "uint8",
+          "title": "UINT8, 1 байт"
+        },
+
+        {
+          "id": "int16",
+          "title": "INT16, 2 байта"
+        },
+
+        {
+          "id": "uint16",
+          "title": "UINT16, 2 байта"
+        },
+
+        {
+          "id": "int32",
+          "title": "INT32, 4 байта"
+        },
+
+        {
+          "id": "uint32",
+          "title": "UINT32, 4 байта"
+        },
+
+        {
+          "id": "int64",
+          "title": "INT64, 8 байт"
+        },
+
+        {
+          "id": "uint64",
+          "title": "UINT64, 8 байт"
+        },
+
+        {
+          "id": "float",
+          "title": "FLOAT, 4 байта"
+        },
+
+        {
+          "id": "double",
+          "title": "DOUBLE, 8 байт"
+        }
+      ],
+
+      "default": "int16"
+    },
+    { "prop": "manbo", "title": "$manbo", "type": "cb" },
+    {
+      "prop": "manbo8",
+      "title": "$bo8",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "title": "Big-Endian, В0 => B0"
+        },
+        {
+          "id": "le",
+          "title": "Little-Endian, В0 => 0B"
+        }
+      ],
+      "default": "be",
+      "hide": "!data.p2.manbo || (data.p2.vartype.id !== 'uint8' && data.p2.vartype.id !== 'int8')"
+    },
+    {
+      "prop": "manbo16",
+      "title": "$bo16",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "title": "Big-Endian, В1B2 => B1B2"
+        },
+        {
+          "id": "le",
+          "title": "Little-Endian, В1B2 => B2B1"
+        }
+      ],
+      "default": "be",
+      "hide": "!data.p2.manbo || (data.p2.vartype.id !== 'uint16' && data.p2.vartype.id !== 'int16')"
+    },
+    {
+      "prop": "manbo32",
+      "title": "$bo32",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "title": "Big-Endian, B1B2B3B4 => B1B2B3B4"
+        },
+        {
+          "id": "sw",
+          "title": "Big-Endian, swap B1B2B3B4 => B3B4B1B2"
+        },
+        {
+          "id": "le",
+          "title": "Little-Endian, B1B2B3B4 => B4B3B2B1"
+        },
+        {
+          "id": "sb",
+          "title": "Little-Endian, swap B1B2B3B4 => B2B1B4B3"
+        }
+      ],
+      "default": "sw",
+      "hide": "!data.p2.manbo || (data.p2.vartype.id !== 'uint32' && data.p2.vartype.id !== 'int32' && data.p2.vartype.id !== 'float')"
+    },
+    {
+      "prop": "manbo64",
+      "title": "$bo64",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "title": "Big-Endian, B1B2B3B4B5B6B7B8 => B1B2B3B4B5B6B7B8"
+        },
+        {
+          "id": "le",
+          "title": "Little-Endian, B1B2B3B4B5B6B7B8 => B8B7B6B5B4B3B2B1"
+        }
+      ],
+      "default": "be",
+      "hide": "!data.p2.manbo || (data.p2.vartype.id !== 'uint64' && data.p2.vartype.id !== 'int64' && data.p2.vartype.id !== 'double')"
+    },
+    {
+      "prop": "fcr",
+      "title": "$fcr",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "1",
+          "title": "FC1 - Read Coil",
+          "hide": "data.p2.vartype.id != 'bool'"
+        },
+
+        {
+          "id": "2",
+          "title": "FC2 - Read Discrete Input",
+          "hide": "data.p2.vartype.id != 'bool'"
+        },
+        {
+          "id": "3",
+          "title": "FC3 - Read Holding Register",
+          "hide": "data.p2.vartype.id == 'bool'"
+        },
+        {
+          "id": "4",
+          "title": "FC4 - Read Input Register",
+          "hide": "data.p2.vartype.id == 'bool'"
+        }
+      ],
+      "hide": "!data.prw.r",
+      "default": "3"
+    },
+    { "prop": "bit", "title": "$bit", "type": "cb", "hide": "!data.prw.r || data.p2.vartype.id == 'bool'" },
+    {
+      "prop": "offset",
+      "title": "$offset",
+      "type": "number",
+      "hide": "!data.prw.r || !data.p2.bit || data.p2.vartype.id == 'bool'",
+      "default": 0
+    }
+  ],
+
+  "p3": [
+    { "prop": "gr", "title": "$gr", "type": "cb", "default": 1 },
+    { "prop": "grman", "title": "$grman", "type": "cb", "hide": "!data.p3.gr", "default": 0 },
+    { "prop": "grmanstr", "title": "$grmanstr", "type": "input", "hide": "!data.p3.grman", "default": "" },
+    { "prop": "polltimefctr", "title": "$polltimefctr", "type": "input", "hide": "!data.p3.grman", "default": 1 }
+  ],
+
+  "p8": [
+    { "prop": "calc", "title": "$Devhard_Calc", "type": "input", "hide": "data.p8.inv" },
+    { "prop": "inv", "title": "$Devhard_Inv", "type": "cb", "hide": "!data.p2.bit && data.p2.vartype.id != 'bool'" },
+    {
+      "prop": "usek",
+      "title": "$usek",
+      "type": "cb",
+      "default": 0,
+      "hide": "data.p2.bit || data.p2.vartype.id == 'bool'"
+    },
+    {
+      "prop": "ks0",
+      "title": "$ks0",
+      "type": "input",
+      "hide": "!data.p8.usek || data.p2.vartype.id == 'bool'"
+    },
+    {
+      "prop": "ks",
+      "title": "$ks",
+      "type": "input",
+      "hide": "!data.p8.usek || data.p2.vartype.id == 'bool'"
+    },
+    {
+      "prop": "kh0",
+      "title": "$kh0",
+      "type": "input",
+      "hide": "!data.p8.usek || data.p2.vartype.id == 'bool'"
+    },
+    {
+      "prop": "kh",
+      "title": "$kh",
+      "type": "input",
+      "hide": "!data.p8.usek || data.p2.vartype.id == 'bool'"
+    }
+  ],
+
+  "p4": [
+    { "prop": "diffw", "title": "$diffw", "type": "cb"},
+    {
+      "prop": "waddress",
+      "title": "$address",
+      "type": "input",
+      "default": "0x0000",
+      "hide": "!data.p4.diffw"
+    },
+    {
+      "prop": "wvartype",
+      "title": "$vartype",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "bool",
+          "title": "BOOL"
+        },
+
+        {
+          "id": "int8",
+          "title": "INT8, 1 byte"
+        },
+
+        {
+          "id": "uint8",
+          "title": "UINT8, 1 byte"
+        },
+
+        {
+          "id": "int16",
+          "title": "INT16, 2 bytes"
+        },
+
+        {
+          "id": "uint16",
+          "title": "UINT16, 2 bytes"
+        },
+
+        {
+          "id": "int32",
+          "title": "INT32, 4 bytes"
+        },
+
+        {
+          "id": "uint32",
+          "title": "UINT32, 4 bytes"
+        },
+
+        {
+          "id": "int64",
+          "title": "INT64, 8 bytes"
+        },
+
+        {
+          "id": "uint64",
+          "title": "UINT64, 8 bytes"
+        },
+
+        {
+          "id": "float",
+          "title": "FLOAT, 4 bytes"
+        },
+
+        {
+          "id": "double",
+          "title": "DOUBLE, 8 bytes"
+        }
+      ],
+      "hide": "!data.p4.diffw",
+      "default": "int16"
+    },
+    {
+      "prop": "fcw",
+      "title": "$fcw",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "5",
+          "title": "FC5 - Write Coil",
+          "hide": "data.p2.vartype.id != 'bool'"
+        },
+
+        {
+          "id": "15",
+          "title": "FC15 - Write Multiple Coils",
+          "hide": "data.p2.vartype.id != 'bool'"
+        },
+        {
+          "id": "6",
+          "title": "FC6 - Write Holding Register",
+          "hide": "data.p2.vartype.id == 'bool'"
+        },
+        {
+          "id": "16",
+          "title": "FC16 - Write Multiple Holding Registers",
+          "hide": "data.p2.vartype.id == 'bool'"
+        }
+      ]
+    },
+    { "prop": "calc_out", "title": "$Devhard_Calc_Out", "type": "input" }
+  ],
+   
+
+  "ptest": [
+    { "prop": "header_testwrite", "title": "$header_testwrite", "type": "header" },
+    { "prop": "testValue", "title": "$testValue", "type": "input" },
+
+    {
+      "prop": "writeButton",
+      "title": "$doWrite",
+      "type": "button",
+      "command": "writetochannel",
+      "param": "write"
+    },
+
+    {
+      "prop": "show_fcw_fc5",
+      "title": " FC5 - Write Single Coil",
+      "type": "header",
+      "hide": "!data.p4.diffw && data.p2.vartype.id != 'bool' || data.p4.diffw && data.p4.wvartype.id != 'bool'"
+    },
+    {
+      "prop": "show_fcw_fc6",
+      "title": " FC6 - Write Single Register",
+      "type": "header",
+      "hide": "!data.p4.diffw && data.p2.vartype.id == 'bool' || data.p4.diffw && data.p4.wvartype.id == 'bool'"
+    }
+  ],
+
+  "p9": [
+    { "prop": "realtime_chan_str", "title": "$realtime_chan_str", "type": "text" },
+    { "prop": "realtime_dev_str", "title": "$realtime_dev_str", "type": "text" }
+  ]
+}

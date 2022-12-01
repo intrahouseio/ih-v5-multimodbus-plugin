@@ -1,0 +1,42 @@
+{
+  "grid": [
+    { "id": "p1", "xs": 12, "class": "main", "table":"unitchannelsTable", "height":"fill" }
+  ],
+  "spacing": 10,
+
+  "p1": [
+    {
+      "title": "Channels",
+      "type": "table",
+      "prop": "unitchannelsTable",
+      "popupenable":false,
+      "columns": [
+     
+        { "prop": "chan", "title": "$realtime_chan_str",  "type": "link", "command":"forward",  "width": 150, "filter": true },
+        { "prop": "unitid","title": "Unit ID","type": "input", "width": 100, "filter": true},
+        { "prop": "r", "title": "$Read",  "type": "cb", "width": 100, "filter": true },
+        { "prop": "fcr", "title": "$fcr",  "type": "text", "hide":"!data.r", "width": 100, "filter": true },
+        { "prop": "address","title": "$address","type": "input", "hide":"!data.r", "width": 150, "filter": true},
+        { "prop": "vartype", "title": "$vartype",  "type": "text", "hide":"!data.r", "width": 150, "filter": true },
+     
+        { "prop": "gr", "title": "$gr",  "type": "cb", "width": 50, "hide":"!data.r", "filter": true  },
+        { "prop": "grman", "title": "$grman",  "type": "cb", "width": 50, "hide":"!data.r || !data.gr", "filter": true  },
+        { "prop": "grmanstr", "title": "$grmanstr",  "type": "input", "width": 50, "hide":"!data.r || !data.gr || !data.grman", "filter": true  },
+        { "prop": "polltimefctr", "title": "$polltimefctr",  "type": "input", "width": 20, "hide":"!data.r || !data.gr || !data.grman", "filter": true  },
+        { "prop": "calc", "title": "$Devhard_Calc", "type": "input", "hide": "!data.r" },
+        
+        { "prop": "w", "title": "$Write",  "type": "cb", "width": 100, "filter": true },
+        { "prop": "diffw", "title": "$diffw",  "type": "cb", "hide":"!data.r", "width": 100, "filter": true },
+        { "prop": "waddress","title": "$address","type": "input", "hide":"data.r && !data.diffw", "width": 150, "filter": true},
+        { "prop": "wvartype", "title": "$vartype",  "type": "text", "hide":"data.r && !data.diffw", "width": 150, "filter": true },
+        { "prop": "did", "title": "$Device",  "type": "link", "command":"forward", "width": 200, "filter": true  },
+        { "prop": "prop", "title": "$DeviceProperty", "type": "text",  "width": 150, "filter": true },
+        { "prop": "realtime_chan_val", "title": "$realtime_chan_val", "type": "text",  "width": 150, "filter": true },
+        { "prop": "realtime_chan_ts", "title": "$realtime_chan_ts", "type": "text",  "width": 150, "filter": true },
+        { "prop": "realtime_dev_val", "title": "$realtime_dev_val", "type": "text",  "width": 150, "filter": true },
+        { "prop": "realtime_dev_ts", "title": "$realtime_dev_ts", "type": "text",  "width": 150, "filter": true },
+        { "prop": "realtime_dev_err", "title": "$realtime_dev_err", "type": "text",  "width": 150, "filter": true }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,559 @@
+{
+  "name": "multimodbus",
+  "description": "Multi Modbus plugin for IH",
+  "single": 0,
+  "restartOnChannelsChange": 0,
+
+  "params": [
+    {
+      "name": "transport",
+      "note": "$transport",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "tcp",
+          "name": "Modbus TCP"
+        },
+        {
+          "id": "udp",
+          "name": "Modbus UDP"
+        },
+        {
+          "id": "rtuOverTcp",
+          "name": "$rtuOverTcp"
+        },
+        {
+          "id": "rtutcp",
+          "name": "$rtutcp"
+        }
+      ],
+      "val": "tcp"
+    },
+    {
+      "name": "host",
+      "note": "IP",
+      "type": "string",
+      "val": "192.168.0.250",
+      "visible": "data.transport && data.transport !== \"rtu\" && data.transport !== \"ascii\""
+    },
+
+    {
+      "name": "port",
+      "note": "$port",
+      "type": "number",
+      "val": "502",
+      "visible": "data.transport && data.transport !== \"rtu\" && data.transport !== \"ascii\""
+    },
+
+    {
+      "name": "serialport",
+      "note": "$port",
+      "type": "STRING",
+      "val": "/dev/ttyUSB0",
+      "visible": "data.transport && (data.transport === \"rtu\" || data.transport === \"ascii\")"
+    },
+    {
+      "name": "baudRate",
+      "note": "$baudRate",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "300",
+          "name": "300"
+        },
+        {
+          "id": "600",
+          "name": "600"
+        },
+        {
+          "id": "1200",
+          "name": "1200"
+        },
+        {
+          "id": "2400",
+          "name": "2400"
+        },
+        {
+          "id": "4800",
+          "name": "4800"
+        },
+        {
+          "id": "9600",
+          "name": "9600"
+        },
+        {
+          "id": "19200",
+          "name": "19200"
+        },
+        {
+          "id": "38400",
+          "name": "38400"
+        },
+        {
+          "id": "57600",
+          "name": "57600"
+        },
+        {
+          "id": "115200",
+          "name": "115200"
+        }
+      ],
+      "val": "9600",
+      "visible": "data.transport && (data.transport === \"rtu\" || data.transport === \"ascii\")"
+    },
+    {
+      "name": "parity",
+      "note": "$parity",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "none",
+          "name": "none"
+        },
+        {
+          "id": "even",
+          "name": "even"
+        },
+        {
+          "id": "odd",
+          "name": "odd"
+        }
+      ],
+      "val": "even",
+      "visible": "data.transport && (data.transport === \"rtu\" || data.transport === \"ascii\")"
+    },
+
+    {
+      "name": "dataBits",
+      "note": "$dataBits",
+      "val": 8,
+      "type": "number",
+      "visible": "data.transport && (data.transport === \"rtu\" || data.transport === \"ascii\")"
+    },
+
+    {
+      "name": "stopBits",
+      "note": "$stopBits",
+      "val": 1,
+      "type": "number",
+      "visible": "data.transport && (data.transport === \"rtu\" || data.transport === \"ascii\")"
+    },
+
+    {
+      "name": "timeout",
+      "note": "$timeout",
+      "val": 5000,
+      "type": "number"
+    },
+
+    {
+      "name": "polldelay",
+      "note": "$polldelay",
+      "val": 200,
+      "type": "number"
+    },
+
+    {
+      "name": "maxreadlen",
+      "note": "$maxreadlen",
+      "val": 250,
+      "type": "number"
+    },
+    {
+      "name": "bo8",
+      "note": "$bo8",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "name": "Big-Endian, В0 => B0"
+        },
+        {
+          "id": "le",
+          "name": "Little-Endian, В0 => 0B"
+        }
+      ],
+      "val": "be"
+    },
+    {
+      "name": "bo16",
+      "note": "$bo16",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "name": "Big-Endian, В1B2 => B1B2"
+        },
+        {
+          "id": "le",
+          "name": "Little-Endian, В1B2 => B2B1"
+        }
+      ],
+      "val": "be"
+    },
+    {
+      "name": "bo32",
+      "note": "$bo32",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "name": "Big-Endian, B1B2B3B4 => B1B2B3B4"
+        },
+        {
+          "id": "sw",
+          "name": "Big-Endian, swap B1B2B3B4 => B3B4B1B2"
+        },
+        {
+          "id": "le",
+          "name": "Little-Endian, B1B2B3B4 => B4B3B2B1"
+        },
+        {
+          "id": "sb",
+          "name": "Little-Endian, swap B1B2B3B4 => B2B1B4B3"
+        }
+      ],
+      "val": "sw"
+    },
+    {
+      "name": "bo64",
+      "note": "$bo64",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "be",
+          "name": "Big-Endian, B1B2B3B4B5B6B7B8 => B1B2B3B4B5B6B7B8"
+        },
+        {
+          "id": "le",
+          "name": "Little-Endian, B1B2B3B4B5B6B7B8 => B8B7B6B5B4B3B2B1"
+        }
+      ],
+      "val": "be"
+    }
+  ],
+
+  "chpattern": [
+    {
+      "name": "desc",
+      "note": "$desc",
+      "type": "droplist",
+      "data": [
+        { "id": "DI", "name": "DI - Discrete Input" },
+        { "id": "DO", "name": "DO - Discrete Output" },
+        { "id": "AI", "name": "AI - Analog Input" },
+        { "id": "AO", "name": "AO - Analog  Output" },
+        { "id": "EA", "name": "EA - Enum (switch)" }
+      ],
+      "order": 1
+    },
+
+    {
+      "name": "unitid",
+      "note": "$unitid",
+      "type": "number",
+      "order": 2,
+      "val": 1
+    },
+
+    {
+      "name": "address",
+      "note": "$address",
+      "type": "STRING",
+      "order": 10,
+      "val": "0x0000"
+    },
+
+    {
+      "name": "vartype",
+      "note": "$vartype",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "bool",
+          "name": "BOOL"
+        },
+
+        {
+          "id": "boolreg",
+          "name": "Многобитовый регистр"
+        },
+
+        {
+          "id": "int8",
+          "name": "INT8, 1 байт"
+        },
+
+        {
+          "id": "uint8",
+          "name": "UINT8, 1 байт"
+        },
+
+        {
+          "id": "int16",
+          "name": "INT16, 2 байта"
+        },
+
+        {
+          "id": "uint16",
+          "name": "UINT16, 2 байта"
+        },
+
+        {
+          "id": "int32",
+          "name": "INT32, 4 байта"
+        },
+
+        {
+          "id": "uint32",
+          "name": "UINT32, 4 байта"
+        },
+
+        {
+          "id": "int64",
+          "name": "INT64, 8 байт"
+        },
+
+        {
+          "id": "uint64",
+          "name": "UINT64, 8 байт"
+        },
+
+        {
+          "id": "float",
+          "name": "FLOAT, 4 байта"
+        },
+
+        {
+          "id": "double",
+          "name": "DOUBLE, 8 байт"
+        }
+      ],
+      "order": 11,
+      "val": "int16"
+    },
+    {
+      "name": "fcr",
+      "note": "$fcr",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "1",
+          "name": "FC1 - read, FC5 - write",
+          "visible": "data.vartype == \"bool\""
+        },
+
+        {
+          "id": "2",
+          "name": "FC2 - read",
+          "visible": "data.vartype == \"bool\""
+        },
+        {
+          "id": "3",
+          "name": "FC3 - read, FC6 - write",
+          "visible": "data.vartype != \"bool\""
+        },
+        {
+          "id": "4",
+          "name": "FC4 - read",
+          "visible": "data.vartype != \"bool\""
+        }
+      ],
+      "order": 12,
+      "val": "3"
+    },
+    {
+      "name": "gr",
+      "note": "$gr",
+      "type": "cb",
+      "order": 14,
+      "val": true
+    },
+    {
+      "name": "usek",
+      "note": "$usek",
+      "type": "cb",
+      "order": 15
+    },
+    {
+      "name": "ks0",
+      "note": "$ks0",
+      "type": "STRING",
+      "order": 16,
+      "visible": "data.usek"
+    },
+    {
+      "name": "ks",
+      "note": "$ks",
+      "type": "STRING",
+      "order": 17,
+      "visible": "data.usek"
+    },
+    {
+      "name": "kh0",
+      "note": "$kh0",
+      "type": "STRING",
+      "order": 18,
+      "visible": "data.usek"
+    },
+    {
+      "name": "kh",
+      "note": "$kh",
+      "type": "STRING",
+      "order": 19,
+      "visible": "data.usek"
+    },
+    {
+      "name": "useactions",
+      "note": "$useactions",
+      "type": "cb",
+      "order": 20,
+      "val": false
+    },
+    {
+      "name": "actions",
+      "tabnote": "$actions",
+      "note": "$action",
+      "type": "multi",
+      "visible": "data.useactions && (data.desc == \"DO\" || data.desc == \"AO\")",
+      "data": {
+        "scheme": {
+          "act": {
+            "name": "$action",
+            "type": "droplist",
+            "order": 0,
+            "data": [{ "id": "on", "name": "on" }, { "id": "off", "name": "off" }, { "id": "set", "name": "set" }]
+          },
+          "address": {
+            "name": "$address",
+            "type": "STRING",
+            "order": 1,
+            "val": 0
+          },
+
+          "vartype": {
+            "name": "$vartype",
+            "type": "droplist",
+            "order": 2,
+            "data": [
+              {
+                "id": "bool",
+                "name": "BOOL"
+              },
+
+              {
+                "id": "boolreg",
+                "name": "Многобитовый регистр"
+              },
+
+              {
+                "id": "int8",
+                "name": "INT8, 1 байт"
+              },
+
+              {
+                "id": "uint8",
+                "name": "UINT8, 1 байт"
+              },
+
+              {
+                "id": "int16",
+                "name": "INT16, 2 байта"
+              },
+
+              {
+                "id": "uint16",
+                "name": "UINT16, 2 байта"
+              },
+
+              {
+                "id": "int32",
+                "name": "INT32, 4 байта"
+              },
+
+              {
+                "id": "uint32",
+                "name": "UINT32, 4 байта"
+              },
+
+              {
+                "id": "int64",
+                "name": "INT64, 8 байт"
+              },
+
+              {
+                "id": "uint64",
+                "name": "UINT64, 8 байт"
+              },
+
+              {
+                "id": "float",
+                "name": "FLOAT, 4 байта"
+              },
+
+              {
+                "id": "double",
+                "name": "DOUBLE, 8 байт"
+              }
+            ]
+          },
+          "value": {
+            "name": "$value",
+            "type": "STRING",
+            "order": 3,
+            "visible": "data.act != \"set\"",
+            "val": ""
+          }
+        },
+        "default": {
+          "act": "on",
+          "address": 0,
+          "vartype": "int16",
+          "value": ""
+        }
+      }
+    }
+  ],
+
+  "chdefault": {
+    "chan": "ch1",
+    "desc": "AO",
+    "vartype": "int16",
+    "address": "0x0000",
+    "unitid": 1,
+    "pollp": true,
+    "fcr": "3",
+    "gr": true,
+    "usek": false,
+    "ks0": 0,
+    "ks": 100,
+    "kh0": 0,
+    "kh": 100,
+    "useactions": false,
+    "actions": [{ "act": "on", "address": "0x0000", "vartype": "bool", "value": "" }]
+  },
+
+  "genrules": {
+    "DI": {
+      "cl": "SensorD"
+    },
+
+    "AI": {
+      "cl": "SensorA"
+    },
+
+    "DO": {
+      "cl": "ActorD"
+    },
+
+    "AO": {
+      "cl": "ActorA"
+    },
+
+    "EA": {
+      "cl": "ActorE"
+    }
+  },
+
+  "actions": [{}]
+}

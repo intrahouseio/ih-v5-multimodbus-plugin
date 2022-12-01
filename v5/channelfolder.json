@@ -1,0 +1,54 @@
+{
+  "grid": [
+    { "id": "p1", "xs": 6, "class": "main", "table": "devhard" },
+    { "id": "p2", "xs": 6, "class": "main", "table": "devhard", "hide":"data.p1.foldertype != 'node'" }
+    
+  ],
+  "spacing": 4,
+
+  "p1": [
+    { "prop": "chan", "title": "$Name", "type": "input" },
+    { "prop": "txt", "title": "$Comment", "type": "textarea" },
+    { "prop": "foldertype", "title": "", "type": "text", "hide":"1==1" }
+  ],
+
+  "p2": [
+    { "prop": "nodeip", "title": "$nodeip", "type": "input" },
+    { "prop": "nodeport", "title": "$nodeport", "type": "input" },
+    {
+      "prop": "nodetransport",
+      "title": "$transport",
+      "type": "droplist",
+      "data": [
+        {
+          "id": "tcp",
+          "title": "Modbus TCP"
+        },
+        {
+          "id": "udp",
+          "title": "Modbus UDP"
+        },
+        {
+          "id": "rtuOverTcp",
+          "title": "$rtuOverTcp"
+        },
+        {
+          "id": "rtutcp",
+          "title": "$rtutcp"
+        }
+      ],
+      "default": "tcp"
+    },
+    {
+      "prop": "unitid",
+      "title": "$unitid",
+      "type": "number",
+      "default": 1
+    },
+
+    { "prop": "parentoffset", "title": "$offset", "type": "input", "default": 0 }
+  ]
+
+  
+ 
+}

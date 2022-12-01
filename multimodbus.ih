@@ -1,0 +1,6 @@
+{
+    "id":"multimodbus",
+    "description":"Multi Modbus plugin",
+    "cross":true,
+	"version":"5.0.1"
+}

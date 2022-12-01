@@ -1,0 +1,64 @@
+{
+  "name": "multimodbus",
+  "description": "Multi Modbus plugin (TCP, UDP, RTU over TCP)",
+  "single": 0,
+  "restartOnChannelsChange": 0,
+
+  "innerId":1,
+  "hasTryStartState":1,
+  "linkChstatus":1,
+  
+  "share_node_folder_fields":["nodeip", "nodeport", "nodetransport", "parentoffset", "unitid"],
+  
+  "validator": {
+    "main": {
+      "host":{"IPv4": true},
+      "maxreadlen": { "min": 1, "max":125 },
+      "port":{"notempty": true}
+    }
+  },
+
+  "channel_folder_popup": {
+    "add": [
+      { "id": "channel_folder", "title": "$NewFolder" },
+      { "id": "channel_node_folder", "title": "$NewNode" },
+      { "id": "channel", "title": "$Channel" }
+    ],
+    "copypaste": true,
+    "delete": true
+  },
+
+  "channel_popup": {
+    "add": [{ "id": "channel", "title": "$Channel" }],
+    "copypaste": true,
+    "delete": true
+  },
+
+
+  "default_channel_node_folder": {
+    "foldertype": "node",
+    "nodeip": "192.168.0.245",
+    "nodeport": 502,
+    "nodetransport": "tcp",
+    "parentoffset": 0,
+    "chan": "$NewNode",
+    "unitid":1
+  },
+
+  "default_channel": {
+      "chan": "ch1",
+      "r":1,
+      "desc": "AO",
+      "vartype": "int16",
+      "address": "0x0000",
+      "unitid": 1,
+      "pollp": true,
+      "fcr": "3",
+      "gr": true,
+      "usek": false,
+      "ks0": 0,
+      "ks": 100,
+      "kh0": 0,
+      "kh": 100
+  }
+}
