@@ -377,8 +377,9 @@
           "id": "16",
           "title": "FC16 - Write Multiple Holding Registers",
           "hide": "data.p2.vartype.id == 'bool'"
-        }
-      ]
+        }   
+      ],
+      "default": "6"
     },
     { "prop": "calc_out", "title": "$Devhard_Calc_Out", "type": "input" }
   ],

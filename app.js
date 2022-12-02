@@ -28,15 +28,6 @@ module.exports = {
 
     try {
       await this.updateChannels(false);
-      this.plugin.log("channels " + util.inspect(this.channels, true, 7));
-      this.polls.forEach(item => {
-        const nodeid = item.nodeip + ":" + item.nodeport;
-        this.clients[nodeid] = new Modbus();
-        this.clients[nodeid].setTimeout(this.params.timeout);
-        this.clients[nodeid].nodeip = item.nodeip;
-        this.clients[nodeid].nodeport = item.nodeport;
-        this.clients[nodeid].nodetransport = item.nodetransport;
-      })
 
       await this.connect();
       this.setWorking();
@@ -52,7 +43,7 @@ module.exports = {
     try {
       this.plugin.sendWorkingState();
     } catch (e) {
-      this.plugin.log('Failed "plugin.sendWorkingState". System update required.');
+      this.plugin.log('Failed "plugin.sendWorkingState". System update required.', 1);
     }
   },
 
@@ -78,7 +69,7 @@ module.exports = {
 
   formWriteObject(chanItem) {
     if (!chanItem) return;
-    this.plugin.log("chanItem: " + util.inspect(chanItem));
+    this.plugin.log("chanItem: " + util.inspect(chanItem), 1);
     // Копировать свойства канала в объект
     const res = {
       id: chanItem.id,
@@ -112,7 +103,7 @@ module.exports = {
     if (chanItem.parentoffset) res.address += parseInt(chanItem.parentoffset);
 
     if (!res.vartype) {
-      this.plugin.log('ERROR: Command has empty vartype: ' + util.inspect(chanItem));
+      this.plugin.log('ERROR: Command has empty vartype: ' + util.inspect(chanItem), 1);
       return;
     }
     res.vartype = res.manbo ? this.getVartypeMan(res) : this.getVartype(res.vartype);
@@ -128,7 +119,7 @@ module.exports = {
   },
 
   async parseCommand(message) {
-    this.plugin.log(`Command '${message.command}' received. Data: ${util.inspect(message)}`);
+    this.plugin.log(`Command '${message.command}' received. Data: ${util.inspect(message)}`, 1);
     let payload = [];
 
     try {
@@ -171,6 +162,7 @@ module.exports = {
     if (getChannels === true) {
       this.plugin.log('Request updated channels', 1);
       this.channels = await this.plugin.channels.get();
+      this.terminatePlugin();
     }
 
     if (this.channels.length === 0) {
@@ -199,6 +191,15 @@ module.exports = {
   },
 
   async connect() {
+    this.clients = {};
+    this.polls.forEach(item => {
+      const nodeid = item.nodeip + ":" + item.nodeport;
+      this.clients[nodeid] = new Modbus();
+      this.clients[nodeid].setTimeout(this.params.timeout);
+      this.clients[nodeid].nodeip = item.nodeip;
+      this.clients[nodeid].nodeport = item.nodeport;
+      this.clients[nodeid].nodetransport = item.nodetransport;
+    })
     const clientArr = Object.keys(this.clients);
     for (let i = 0; i < clientArr.length; i++) {
       const item = this.clients[clientArr[i]];
@@ -206,7 +207,7 @@ module.exports = {
       const host = item.nodeip;
       const transport = item.nodetransport;
       try {
-        this.plugin.log("Connect to " + transport + " " + host + ":" + item.nodeport);
+        this.plugin.log("Connect to " + transport + " " + host + ":" + item.nodeport, 1);
 
         switch (transport) {
           case 'tcp':
@@ -400,7 +401,7 @@ module.exports = {
     this.clients[nodeid].setID(item.unitid);
     let fcw;
     //let fcw = item.vartype == 'bool' ? 5 : 6;
-    this.plugin.log("WRITE FCW: " + item.fcw);
+    this.plugin.log("WRITE FCW: " + item.fcw, 2);
     if (item.fcw) {
       fcw = item.fcw;
     } else {
@@ -517,11 +518,11 @@ module.exports = {
 
   checkError(e) {
     if (e.errno && networkErrors.includes(e.errno)) {
-      this.plugin.log('Network ERROR: ' + e.errno, 0);
+      this.plugin.log('Network ERROR: ' + e.errno, 1);
       //this.terminatePlugin();
       //process.exit(1);
     } else {
-      this.plugin.log('ERROR: ' + util.inspect(e), 0);
+      this.plugin.log('ERROR: ' + util.inspect(e), 1);
     }
 
     // TODO - проверить ошибку и не всегда выходить

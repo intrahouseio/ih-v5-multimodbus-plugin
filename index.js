@@ -1,11 +1,17 @@
 const util = require("util");
 
-const plugin = require("ih-plugin-api")();
+// const plugin = require("ih-plugin-api")();
 const modbus = require("./app");
 
 (async () => {
-  plugin.log("Multi Modbus Master plugin has started.");
+ 
+  let plugin;
   try {
+    const opt = getOptFromArgs();
+    const pluginapi = opt && opt.pluginapi ? opt.pluginapi : 'ih-plugin-api';
+    plugin = require(pluginapi+'/index.js')();
+    
+    plugin.log("Modbus Master plugin has started.");
     modbus.params = await plugin.params.get();
     plugin.log('Received params...');
     console.log("Params:", util.inspect(modbus.params));
@@ -22,3 +28,15 @@ const modbus = require("./app");
     plugin.exit(8, `Error! Message: ${util.inspect(err)}`);
   }
 })();
+
+
+
+function getOptFromArgs() {
+  let opt;
+  try {
+    opt = JSON.parse(process.argv[2]); //
+  } catch (e) {
+    opt = {};
+  }
+  return opt;
+}
