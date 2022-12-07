@@ -224,7 +224,7 @@ module.exports = {
             break;
           case 'udp':
             if (!item.isOpen) await item.connectUDP(host, options);
-
+            await sleep(100);
             break;
           default:
             throw new Error(`Протокол ${this.params.transport} еще не имплементирован`);
