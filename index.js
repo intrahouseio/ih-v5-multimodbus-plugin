@@ -11,10 +11,10 @@ const modbus = require("./app");
     const pluginapi = opt && opt.pluginapi ? opt.pluginapi : 'ih-plugin-api';
     plugin = require(pluginapi+'/index.js')();
     
-    plugin.log("Modbus Master plugin has started.");
-    modbus.params = await plugin.params.get();
+    plugin.log("Modbus Multi Master plugin has started.");
+    plugin.params = await plugin.params.get();
     plugin.log('Received params...');
-    console.log("Params:", util.inspect(modbus.params));
+    console.log("Params:", util.inspect(plugin.params));
     modbus.channels = await plugin.channels.get();
     if (modbus.channels.length > 0) {
       plugin.log(`Received ${modbus.channels.length} channels...`);
