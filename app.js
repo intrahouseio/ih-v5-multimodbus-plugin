@@ -66,8 +66,8 @@ module.exports = {
     } catch (err) {
       this.checkError(err);
     }
-    clearTimeout(nextTimer);
-    this.sendNext();
+    //clearTimeout(nextTimer);
+    //this.sendNext();
   },
 
   formWriteObject(chanItem) {
@@ -165,7 +165,7 @@ module.exports = {
     if (getChannels === true) {
       this.plugin.log('Request updated channels', 1);
       this.channels = await this.plugin.channels.get();
-      this.terminatePlugin();
+      //this.terminatePlugin();
     }
 
     if (this.channels.length === 0) {
@@ -225,10 +225,10 @@ module.exports = {
             if (!item.isOpen) await item.connectTelnet(host, options);
 
             break;
-          case 'udp':
+          /*case 'udp':
             if (!item.isOpen) await item.connectUDP(host, options);
             await sleep(100);
-            break;
+            break;*/
           default:
             throw new Error(`Протокол ${this.params.transport} еще не имплементирован`);
         }
