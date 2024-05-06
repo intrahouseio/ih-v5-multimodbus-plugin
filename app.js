@@ -11,6 +11,7 @@ module.exports = {
   clients: {},
   params: {},
   channels: [],
+  channelsChstatus: {},
   channelsData: {},
 
   async start(plugin) {
@@ -275,6 +276,9 @@ module.exports = {
       if (res && res.buffer) {
         if (this.params.sendChanges == 1) {
           let data = tools.getDataFromResponse(res.buffer, item.ref);
+          data.forEach(el => {
+            this.channelsChstatus[el.id] = el.chstatus;
+          });
           let arr = data.filter(item => {
             if (this.channelsData[item.id] != item.value) {
               this.channelsData[item.id] = item.value;
@@ -342,6 +346,9 @@ module.exports = {
       }
     } catch (err) {
       let charr = ref.map(item => ({ id: item.id, chstatus: 1, title: item.title }));
+      charr.forEach(el => {
+        this.channelsChstatus[el.id] = 1;
+      });
       this.plugin.sendData(charr);
       this.checkError(err);
     }
@@ -527,7 +534,14 @@ module.exports = {
     } else {
       this.plugin.log('ERROR: ' + util.inspect(e), 1);
     }
-
+    // Если все каналы c chstatus=1 - перезагрузить плагин
+    for (const item of this.channels) {
+      if (!this.channelsChstatus[item.id]) return;
+    }
+    this.plugin.log('All channels have bad status! Exit with code 42', 1);
+    exitCode = 42;
+    this.terminatePlugin();
+    process.exit(exitCode);
     // TODO - проверить ошибку и не всегда выходить
     /*if (this.params.transport == 'tcp') {
       this.terminatePlugin();
