@@ -1,6 +1,6 @@
 {
   "name": "multimodbus",
-  "description": "Multi Modbus plugin (TCP, UDP, RTU over TCP)",
+  "description": "Multi Modbus plugin (TCP, RTU over TCP)",
   "single": 0,
   "restartOnChannelsChange": 0,
 

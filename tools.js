@@ -12,14 +12,79 @@ exports.getPollArray = getPollArray;
 exports.getDataFromResponse = getDataFromResponse;
 exports.transformStoH = transformStoH;
 exports.transformHtoS = transformHtoS;
+exports.getRequests = getRequests;
+exports.getVarLen = getVarLen;
+exports.getRefobj = getRefobj;
 
 function getDataFromResponse(buf, ref) {
   if (!ref || !util.isArray(ref)) {
     return;
   }
 
-  return ref.map(item => ({ id: item.id, value: readValue(buf, item), title:item.title, chstatus: 0 }));
+  return ref.map(item => ({ id: item.id, value: readValue(buf, item), title: item.title, chstatus: 0 }));
 }
+
+function getRequests(channels, params) {
+  if (!channels || !util.isArray(channels)) {
+    return [];
+  }
+
+  let result = [];
+  const maxReadLen = params.maxreadlen || 240;
+
+  channels.sort(byorder('unitid,fcr,address'));
+
+  const config = channels.filter(item => item.req);
+  let i = 0;
+  let current;
+  let length;
+
+  while (i < config.length) {
+    let item = config[i];
+    if (!current || isDiffBlock(item) || getLengthAfterAdd(item) > maxReadLen) {
+      // Записать предыдущий элемент
+      if (current && length) {
+        result.push(Object.assign({ length }, current));
+      }
+      length = 0;
+      current = {
+        nodeip: item.nodeip,
+        nodeport: item.nodeport,
+        nodetransport: item.nodetransport,
+        unitid: item.unitid,
+        desc: item.desc,
+        fcr: item.fcr,
+        address: item.address,
+        polltimefctr: item.polltimefctr || 1,
+        curpoll: 1,
+        ref: []
+      };
+    }
+
+    length = getLengthAfterAdd(item, current);
+
+    let refobj = getRefobj(item);
+    refobj.widx = item.address - current.address;
+    current.ref.push(refobj);
+    i++;
+  }
+
+  if (current && length) {
+    result.push(Object.assign({ length }, current));
+  }
+
+  return result;
+
+  function getLengthAfterAdd(citem) {
+    return citem.address - current.address + getVarLen(citem.vartype);
+  }
+
+  function isDiffBlock(citem) {
+    return citem.unitid != current.unitid || citem.fcr != current.fcr;
+  }
+
+}
+
 
 function getPolls(channels, params) {
   if (!channels || !util.isArray(channels)) {
@@ -33,7 +98,7 @@ function getPolls(channels, params) {
 
   // Выбираем переменные, которые можно читать группами, и формируем команды опроса
   // Формируем автоматические группы
-  const config = channels.filter(item => item.gr && !item.grman && item.r);
+  const config = channels.filter(item => item.gr && !item.grman && item.r && !item.req);
   let i = 0;
   let current;
   let length;
@@ -87,13 +152,13 @@ function getPolls(channels, params) {
   let lengthMan;
 
   //Добавить ручную группировку чтения
-  const configMan = channels.filter(item => item.gr && item.grman && item.r);
+  const configMan = channels.filter(item => item.gr && item.grman && item.r && !item.req);
   configMan.sort(byorder('nodeip,nodeport,unitid,grmanstr,address,polltimefctr'));
   configMan.forEach(item => {
     if (!currentMan || isDiffBlockMan(item) || getLengthManAfterAdd(item) > maxReadLen) {
       // Записать предыдущий элемент
       if (currentMan && lengthMan) {
-        result.push(Object.assign({ length : lengthMan }, currentMan));
+        result.push(Object.assign({ length: lengthMan }, currentMan));
       }
 
       lengthMan = 0;
@@ -106,7 +171,7 @@ function getPolls(channels, params) {
         fcr: item.fcr,
         manbo: item.manbo,
         address: item.address,
-        grmanstr: item.grmanstr,
+        grmanstr: item.parentnodefolder ? item.parentnodefolder + item.grmanstr :  item.grmanstr,
         polltimefctr: item.polltimefctr || 1,
         curpoll: 1,
         ref: []
@@ -132,10 +197,10 @@ function getPolls(channels, params) {
         }    
     ];
     */
-  
+
   // Добавить негрупповое чтение
   channels
-    .filter(item => !item.gr && item.r)
+    .filter(item => !item.gr && item.r && !item.req)
     .forEach(item => {
       if (!item.vartype) {
         console.log('NO VARTYPE: ' + util.inspect(item));
@@ -164,7 +229,8 @@ function getPolls(channels, params) {
   }
 
   function isDiffBlockMan(citem) {
-    return  citem.grmanstr != currentMan.grmanstr; 
+    let grmanstr = citem.parentnodefolder ? citem.parentnodefolder + citem.grmanstr :  citem.grmanstr;
+    return  grmanstr != currentMan.grmanstr; 
   }
 
   function getLengthAfterAdd(citem) {
@@ -177,7 +243,7 @@ function getPolls(channels, params) {
 }
 
 function getRefobj(item) {
-  const title = item.parentname ? item.parentname+'/'+item.chan : item.chan;
+  const title = item.parentname ? item.parentname + '/' + item.chan : item.chan;
   let refobj = {
     id: item.id,
     title,

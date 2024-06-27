@@ -1,9 +1,9 @@
 "use strict";
 /* eslint-disable no-undef */
 
-var lint = require("mocha-eslint");
+const lint = require("mocha-eslint");
 
-var paths = [
+const paths = [
     "index.js",
     "ports/**/*.js",
     "servers/**/*.js",
@@ -13,10 +13,10 @@ var paths = [
     "test/**/*.js"
 ];
 
-var options = {
+const options = {
     // Specify style of output
     formatter: "compact", // Defaults to `stylish`
-    timeout: 5000
+    timeout: 10000
 };
 
 // Run the tests

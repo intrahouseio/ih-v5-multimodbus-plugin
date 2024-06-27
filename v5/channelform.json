@@ -46,7 +46,8 @@
 
   "prw": [
     { "prop": "r", "title": "$Read", "type": "cb" },
-    { "prop": "w", "title": "$Write", "type": "cb" }
+    { "prop": "w", "title": "$Write", "type": "cb" },
+    { "prop": "req", "title": "$request", "type": "cb", "hide": "!data.prw.r" }
   ],
 
   "p2": [

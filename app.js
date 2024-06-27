@@ -2,9 +2,7 @@ const util = require('util');
 const tools = require('./tools');
 const Modbus = require('modbus-serial');
 
-//const networkErrors = ['ESOCKETTIMEDOUT', 'ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'EHOSTUNREACH'];
 const networkErrors = ['ESOCKETTIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'EHOSTUNREACH'];
-let nextTimer = {};
 const sleep = ms => new Promise(resolve => nextTimer = setTimeout(resolve, ms));
 
 module.exports = {
@@ -13,6 +11,7 @@ module.exports = {
   channels: [],
   channelsChstatus: {},
   channelsData: {},
+  qToRead: [],
 
   async start(plugin) {
     this.plugin = plugin;
@@ -67,8 +66,6 @@ module.exports = {
     } catch (err) {
       this.checkError(err);
     }
-    //clearTimeout(nextTimer);
-    //this.sendNext();
   },
 
   formWriteObject(chanItem) {
@@ -119,6 +116,14 @@ module.exports = {
       res.kh0 = parseInt(chanItem.kh0);
       res.kh = parseInt(chanItem.kh);
     }
+
+    if (chanItem.bit) {
+      res.bit = chanItem.bit;
+      res.offset = parseInt(chanItem.offset);
+      res.fcr = parseInt(chanItem.fcr);
+      res.title = chanItem.chan;
+    }
+
     return res;
   },
 
@@ -147,6 +152,15 @@ module.exports = {
           }
 
           this.plugin.sendResponse(Object.assign({ payload }, message), 1);
+          break;
+
+        case 'readOnReq':
+          if (message.data != undefined) {
+            message.data.forEach(item => {
+              item.vartype = item.manbo ? this.getVartypeMan(item) : this.getVartype(item.vartype);
+            })
+            this.setRead(message);
+          }
           break;
 
         default:
@@ -187,7 +201,7 @@ module.exports = {
       this.channels.filter(item => item.r),
       this.params
     );
-    this.plugin.log(`Polls = ${util.inspect(this.polls)}`, 2);
+    this.plugin.log(`Polls = ${util.inspect(this.polls, null, 4)}`, 2);
 
     this.queue = tools.getPollArray(this.polls); // Очередь опроса -на чтение
     this.qToWrite = []; // Очередь на запись - имеет более высокий приоритет
@@ -261,6 +275,12 @@ module.exports = {
     }
   },
 
+  setRead(message) {
+    this.qToRead = tools.getRequests(message.data, this.params);
+    this.message = { unit: message.unit, param: message.param, sender: message.sender, type: message.type, uuid: message.uuid };
+
+  },
+
   async read(item, allowSendNext) {
     const nodeid = item.nodeip + ":" + item.nodeport;
     if (!this.clients[nodeid].isOpen) await this.connect();
@@ -331,7 +351,6 @@ module.exports = {
   async modbusReadCommand(nodeid, fcr, address, length, ref) {
     try {
       fcr = Number(fcr);
-
       switch (fcr) {
         case 2:
           return await this.clients[nodeid].readDiscreteInputs(address, length);
@@ -354,6 +373,38 @@ module.exports = {
     }
   },
 
+  async readRequest(item, allowSendNext) {
+    const nodeid = item.nodeip + ":" + item.nodeport;
+    try {
+      const res = await this.modbusReadCommand(nodeid, item.fcr, item.address, item.length, item.ref);
+      if (res && res.buffer) {
+
+        const data = tools.getDataFromResponse(res.buffer, item.ref);
+        this.plugin.sendData(data);
+      }
+    } catch (error) {
+      this.message.result = "Read Request Fail";
+      this.plugin.sendResponse(this.message, 1);
+      this.checkError(error);
+    }
+
+    if (this.qToRead.length == 0) {
+      this.message.result = "Read Request Ok";
+      this.plugin.sendResponse(this.message, 1);
+    }
+
+
+    if (this.qToRead.length || allowSendNext) {
+      if (!this.qToRead.length) {
+        await sleep(this.params.polldelay || 10); // Интервал между запросами
+      }
+
+      setImmediate(() => {
+        this.sendNext();
+      });
+    }
+  },
+
   async write(item, allowSendNext) {
     const nodeid = item.nodeip + ":" + item.nodeport;
     if (!this.clients[nodeid].isOpen) await this.connect();
@@ -370,6 +421,20 @@ module.exports = {
     if (fcw == 6 || fcw == 16) {
       val = tools.writeValue(item.value, item);
       if (Buffer.isBuffer(val) && val.length > 2) fcw = 16;
+    }
+
+    if (item.bit) {
+      item.ref = [];
+      let refobj = tools.getRefobj(item);
+      refobj.widx = item.address;
+      item.ref.push(refobj);
+      const res = await this.modbusReadCommand(nodeid, item.fcr, item.address, tools.getVarLen(item.vartype), item.ref);
+      val = res.buffer;
+      if (item.offset < 8) {
+        val[1] = item.value == 1 ? val[1] | (1 << item.offset) : val[1] & ~(1 << item.offset);
+      } else {
+        val[0] = item.value == 1 ? val[0] | (1 << (item.offset - 8)) : val[0] & ~(1 << (item.offset - 8));
+      }
     }
 
     this.plugin.log(
@@ -422,6 +487,20 @@ module.exports = {
     if (fcw == 6 || fcw == 16) {
       val = tools.writeValue(item.value, item);
       if (Buffer.isBuffer(val) && val.length > 2) fcw = 16;
+    }
+
+    if (item.bit) {
+      item.ref = [];
+      let refobj = tools.getRefobj(item);
+      refobj.widx = item.address;
+      item.ref.push(refobj);
+      const res = await this.modbusReadCommand(nodeid, item.fcr, item.address, tools.getVarLen(item.vartype), item.ref);
+      val = res.buffer;
+      if (item.offset < 8) {
+        val[1] = item.value == 1 ? val[1] | (1 << item.offset) : val[1] & ~(1 << item.offset);
+      } else {
+        val[0] = item.value == 1 ? val[0] | (1 << (item.offset - 8)) : val[0] & ~(1 << (item.offset - 8));
+      }
     }
 
     this.plugin.log(
@@ -496,6 +575,11 @@ module.exports = {
       item = this.qToWrite.shift();
       this.plugin.log(`sendNext: WRITE item = ${util.inspect(item)}`, 2);
       return this.write(item, !isOnce);
+    }
+
+    if (this.qToRead.length) {
+      item = this.qToRead.shift();
+      return this.readRequest(item, !isOnce);
     }
 
     if (this.queue.length <= 0) {

@@ -60,5 +60,6 @@
     "laststart" : "Start time",
     "laststop" : "Stop time",
     "uptime" : "Uptime",
-    "error" : "Error"
+    "error" : "Error",
+    "request" : "On Request"
 }
