@@ -208,17 +208,23 @@ module.exports = {
     this.sendTime = 0;
   },
 
-  async connect() {
-    this.clients = {};
-    this.polls.forEach(item => {
-      const nodeid = item.nodeip + ":" + item.nodeport;
-      this.clients[nodeid] = new Modbus();
-      this.clients[nodeid].setTimeout(this.params.timeout);
-      this.clients[nodeid].nodeip = item.nodeip;
-      this.clients[nodeid].nodeport = item.nodeport;
-      this.clients[nodeid].nodetransport = item.nodetransport;
-    })
-    const clientArr = Object.keys(this.clients);
+  async connect(nodeid) {
+    let clientArr = []
+    if (nodeid == undefined) {
+      this.clients = {};
+      this.polls.forEach(item => {
+        const nodeid = item.nodeip + ":" + item.nodeport;
+        this.clients[nodeid] = new Modbus();
+        this.clients[nodeid].setTimeout(this.params.timeout);
+        this.clients[nodeid].nodeip = item.nodeip;
+        this.clients[nodeid].nodeport = item.nodeport;
+        this.clients[nodeid].nodetransport = item.nodetransport;
+      })
+      clientArr = Object.keys(this.clients);
+    } else {
+      clientArr.push(nodeid);
+    }
+
     for (let i = 0; i < clientArr.length; i++) {
       const item = this.clients[clientArr[i]];
       const options = { port: item.nodeport };
@@ -255,6 +261,9 @@ module.exports = {
             charr.push({ id: chitem.id, chstatus: 1, title: chitem.title })
           }
         })
+        charr.forEach(el => {
+          this.channelsChstatus[el.id] = 1;
+        });
         this.plugin.sendData(charr);
         this.checkError(err);
         this.plugin.log(`Connection fail!`, 1);
@@ -283,7 +292,6 @@ module.exports = {
 
   async read(item, allowSendNext) {
     const nodeid = item.nodeip + ":" + item.nodeport;
-    if (!this.clients[nodeid].isOpen) await this.connect();
     this.clients[nodeid].setID(item.unitid);
     this.plugin.log(
       `READ: nodeId = ${item.nodetransport}:${nodeid}, unitId = ${item.unitid}, FC = ${item.fcr}, address = ${this.showAddress(item.address)}, length = ${item.length
@@ -328,7 +336,6 @@ module.exports = {
 
   async readValueCommand(item) {
     const nodeid = item.nodeip + ":" + item.nodeport;
-    if (!this.clients[nodeid].isOpen) await this.connect();
     this.clients[nodeid].setID(item.unitid);
     this.plugin.log(
       `READ: nodeId = ${item.nodetransport}:${nodeid}, unitId = ${item.unitid}, FC = ${item.fcr}, address = ${this.showAddress(item.address)}, length = ${item.length
@@ -349,6 +356,10 @@ module.exports = {
   },
 
   async modbusReadCommand(nodeid, fcr, address, length, ref) {
+    if (!this.clients[nodeid].isOpen) {
+      await this.connect(nodeid);
+      if (!this.clients[nodeid].isOpen) throw new Error("Connection fail throw");
+    }
     try {
       fcr = Number(fcr);
       switch (fcr) {
@@ -407,7 +418,7 @@ module.exports = {
 
   async write(item, allowSendNext) {
     const nodeid = item.nodeip + ":" + item.nodeport;
-    if (!this.clients[nodeid].isOpen) await this.connect();
+
     this.clients[nodeid].setID(parseInt(item.unitid));
     let fcw;
     //let fcw = item.vartype == 'bool' ? 5 : 6;
@@ -472,7 +483,6 @@ module.exports = {
 
   async writeValueCommand(item) {
     const nodeid = item.nodeip + ":" + item.nodeport;
-    if (!this.clients[nodeid].isOpen) await this.connect();
     this.clients[nodeid].setID(item.unitid);
     let fcw;
     //let fcw = item.vartype == 'bool' ? 5 : 6;
@@ -526,6 +536,10 @@ module.exports = {
   },
 
   async modbusWriteCommand(nodeid, fcw, address, value) {
+    if (!this.clients[nodeid].isOpen) {
+      await this.connect(nodeid);
+      if (!this.clients[nodeid].isOpen) throw new Error("Connection fail throw");
+    }
     try {
       switch (fcw) {
         case 5:
