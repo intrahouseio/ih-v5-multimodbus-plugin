@@ -256,15 +256,13 @@ module.exports = {
 
       } catch (err) {
         let charr = [];
-        this.channels.forEach(chitem => {
-          if (chitem.nodeip == item.nodeip && chitem.nodeport == item.nodeport) {
+        this.channels.forEach(chitem => {         
+          if (chitem.nodeip == item.nodeip && chitem.nodeport == item.nodeport && !this.channelsChstatus[chitem.id]) {
             charr.push({ id: chitem.id, chstatus: 1, title: chitem.title })
+            this.channelsChstatus[chitem.id] = 1;
           }
         })
-        charr.forEach(el => {
-          this.channelsChstatus[el.id] = 1;
-        });
-        this.plugin.sendData(charr);
+        if (charr.length > 0) this.plugin.sendData(charr);
         this.checkError(err);
         this.plugin.log(`Connection fail!`, 1);
       }
@@ -302,20 +300,21 @@ module.exports = {
     try {
       let res = await this.modbusReadCommand(nodeid, item.fcr, item.address, item.length, item.ref);
       if (res && res.buffer) {
-        if (this.params.sendChanges == 1) {
-          let data = tools.getDataFromResponse(res.buffer, item.ref);
-          data.forEach(el => {
-            this.channelsChstatus[el.id] = el.chstatus;
-          });
+        const data = tools.getDataFromResponse(res.buffer, item.ref);
+        if (this.params.sendChanges == 1) {          
           let arr = data.filter(item => {
-            if (this.channelsData[item.id] != item.value) {
+            if (this.channelsData[item.id] != item.value ||  this.channelsChstatus[item.id] == 1) {
+              this.channelsChstatus[item.id] = item.chstatus;
               this.channelsData[item.id] = item.value;
               return true;
             }
           });
           if (arr.length > 0) this.plugin.sendData(arr);
         } else {
-          this.plugin.sendData(tools.getDataFromResponse(res.buffer, item.ref));
+          data.forEach(el => {
+            this.channelsChstatus[el.id] = el.chstatus;
+          });
+          this.plugin.sendData(data);
         }
 
         // this.plugin.log(res.buffer, 2);
@@ -375,11 +374,17 @@ module.exports = {
           throw new Error(`Функция ${fcr} на чтение не поддерживается`);
       }
     } catch (err) {
-      let charr = ref.map(item => ({ id: item.id, chstatus: 1, title: item.title }));
-      charr.forEach(el => {
-        this.channelsChstatus[el.id] = 1;
+      let charr = [];
+      ref.forEach(item => {
+        if (!this.channelsChstatus[item.id]) {
+          this.channelsChstatus[item.id] = 1;
+          charr.push({ id: item.id, chstatus: 1, title: item.title })
+        }  
       });
-      this.plugin.sendData(charr);
+      /*charr.forEach(el => {
+        this.channelsChstatus[el.id] = 1;
+      });*/
+      if (charr.length) this.plugin.sendData(charr);      
       this.checkError(err);
     }
   },
