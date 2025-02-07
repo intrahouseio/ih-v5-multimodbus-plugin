@@ -38,6 +38,12 @@
       "type": "number"
     },
     {
+      "prop": "retries",
+      "title": "$retries",
+      "default": 3,
+      "type": "number"
+    },
+    {
       "prop": "showbyteorder",
       "title": "$showbyteorder",
       "type": "cb"
@@ -136,8 +142,16 @@
           "title": "Big-Endian, B1B2B3B4B5B6B7B8 => B1B2B3B4B5B6B7B8"
         },
         {
+          "id": "sw",
+          "title": "Big-Endian, swap B1B2B3B4B5B6B7B8 => B2B1B4B3B6B5B8B7"
+        },
+        {
           "id": "le",
           "title": "Little-Endian, B1B2B3B4B5B6B7B8 => B8B7B6B5B4B3B2B1"
+        },
+        {
+          "id": "sb",
+          "title": "Little-Endian, swap B1B2B3B4B5B6B7B8 => B7B8B5B6B3B4B1B2"
         }
       ],
       "default": "be"

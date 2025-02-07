@@ -4,9 +4,9 @@
   "description": "Multimodbus Master plugin for IH",
   "main": "index.js",
   "dependencies": {
+    "iconv-lite": "^0.6.3",
     "modbus-serial": "^8.0.17"
   },
-  "devDependencies": {},
   "author": "INTRA",
   "license": "MIT"
 }
