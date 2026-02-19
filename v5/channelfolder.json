@@ -13,6 +13,7 @@
   ],
 
   "p2": [
+    { "prop": "r", "title": "$activate", "type": "cb" },
     { "prop": "nodeip", "title": "$nodeip", "type": "input" },
     { "prop": "nodeport", "title": "$nodeport", "type": "input" },
     {

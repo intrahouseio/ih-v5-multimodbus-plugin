@@ -4,6 +4,7 @@
     "timeout":"Waiting for response to request (ms)",
     "polldelay":"Interval between requests (ms)",
     "maxreadlen":"Max number of words when reading range",
+    "retries": "Number of request retries",
     "showbyteorder": "Byte order settings",
     "bo8":"Byte position in word (for 1-byte value)",
     "bo16":"Byte order for 2-byte values",
@@ -61,5 +62,7 @@
     "laststop" : "Stop time",
     "uptime" : "Uptime",
     "error" : "Error",
-    "request" : "On Request"
+    "request" : "On Request",
+    "activate": "Activate",
+    "maxbitreadlen": "Max number of bits when reading range"
 }
